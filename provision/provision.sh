@@ -1,5 +1,8 @@
 # /bin/bash
 
+# This script fails if any command does.
+set -eo pipefail
+
 # Defining global parameters.
 PROVISIONING_DIR=$(cd $(dirname $0) && pwd)
 CONNECTION_DIR="${PROVISIONING_DIR}/../connection"
