@@ -80,23 +80,17 @@ ignore it.
 
 cd "${MANAGEMENT_DIR}/../connection"
 
-echo -e "\nCreating the OpenVSwitch ...\n"
-./connect.sh -n "$TARGET" -c "ovs-vsctl add-br br-ex && \
-    ovs-vsctl add-port eno1"
+echo -e "\nCreating the network configuration associated with \
+the use of a OpenVSwitch ...\n"
 
-
-echo -e "\nModifying the configuration file related to the physical 
-interface ...\n"
-
-./connect.sh -n "$TARGET" -c "echo \"DEVICE=eno1
-TYPE=OVSPORT
-DEVICETYPE=ovs
-OVS_BRIDGE=br-ex
-ONBOOT=yes
-BOOTPROTO=static\" > ${ENO_1_CONFIG}"
-
-echo -e "\nCreating the configuration file related to the OpenVSwitch ...\n"
-./connect.sh -n "$TARGET" -c "echo \"DEVICE=br-ex
+# The following command is UGLY AS F**K (sending all the commands
+# to execute in one giant string). 
+# However, since we are tuning network configuration over a SSH 
+# connection, it is one of the simpliest and lightest to do so.
+./connect.sh -n "$TARGET" -c \
+"ovs-vsctl add-br br-ex && \
+ovs-vsctl add-port br-ex eno1 && \
+echo \"DEVICE=br-ex
 DEVICETYPE=ovs
 TYPE=OVSBridge
 BOOTPROTO=static
@@ -104,7 +98,10 @@ IPADDR=${ip_addr}
 NETMASK=${NETMASK}
 GATEWAY=${GATEWAY}
 DNS1=${DNS1}
-ONBOOT=yes\" > ${BR_EX_CONFIG}"
-
-echo -e "\nRestarting the network interface ...\n"
-systemctl restart network
+ONBOOT=yes\" > ${BR_EX_CONFIG} && \
+echo \"DEVICE=eno1
+TYPE=OVSPORT
+DEVICETYPE=ovs
+OVS_BRIDGE=br-ex
+ONBOOT=yes\" > ${ENO_1_CONFIG} && \
+systemctl restart network"
