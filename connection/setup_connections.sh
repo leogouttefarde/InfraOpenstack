@@ -5,15 +5,17 @@ set -eo pipefail
 
 # Handling the arguments.
 TARGET=""
-while getopts ":hn:" arg; do
+MASTER=""
+while getopts ":hm:n:" arg; do
     case "$arg" in
         h)
             echo "
 ./setup_connections.sh
 
 List of options:
--h    => prints the associated help;
+-h    => prints the associated help.
 -n id => only set up connection to the server which ID is \"id\".
+-m id => copy the infra key and add it to the server which ID is \"id\" 
 
 Connects to all of the Helion server in order to setup a passwordless
 SSH connection. In order:
@@ -22,6 +24,7 @@ SSH connection. In order:
     - The RSA public key is sent to the server, and saved into the \
 \"authorized_keys\" file.
 "
+
             exit 0
             ;;
         n)
@@ -31,6 +34,15 @@ SSH connection. In order:
                 exit 1
             fi
             TARGET="$OPTARG"
+            ;;
+        m) 
+            if [[ "$OPTARG" -le 0 || "$OPTARG" -ge 15 ]]; then
+                echo $OPTARG
+                echo "The ID must be within [[1 ; 14]]."
+                echo "Try ./connect.sh -h."
+                exit 1
+            fi
+            MASTER="$OPTARG"
             ;;
         :)
             echo "The option \"${arg}\" needs an argument."
@@ -51,6 +63,8 @@ LAST_ID=174
 BASE_ADDR=10.11.51.
 SSH_OPTIONS="-o StrictHostKeyChecking=no"
 SSH_KEY=infra.pub
+SSH_PRIVATE_KEY=infra
+CUSTOM_BASH_PROFILE=custom_bash_profile
 
 # Adjusting the value of TARGET, if needed.
 if [[ ! -z "$TARGET" ]]; then
@@ -92,3 +106,28 @@ for id in $(seq ${FIRST_ID} 1 ${LAST_ID}); do
         "cat /root/.ssh/${SSH_KEY} >> /root/.ssh/authorized_keys && \
          rm -f /root/.ssh/${SSH_KEY}"
 done
+
+
+
+if [[ ! -z "$MASTER" ]]; then
+    let "MASTER = MASTER + FIRST_ID - 1"
+
+    MASTER="${BASE_ADDR}${MASTER}"
+    echo "Gives access to $MASTER to other machines"    
+    # Copy the infra key on the machine
+    sshpass -p "$root_pass" scp "${SSH_OPTIONS}" "${SSH_PRIVATE_KEY}" \
+        root@"$MASTER":/root/.ssh/
+    
+    # Copy a custom bash profile with an ssh-agent
+    sshpass -p "$root_pass" scp "${SSH_OPTIONS}" "${CUSTOM_BASH_PROFILE}" \
+        root@"$MASTER":/root/.bash_profile
+    
+    # Add the key to the config file of ssh and source bash_profile to start 
+    # ssh-agent
+    sshpass -p "$root_pass" ssh "${SSH_OPTIONS}" root@"$ip" \
+        "echo IdentityFile /root/.ssh/${SSH_PRIVATE_KEY} >> /root/.ssh/config && \
+         source ~/.bash_profile"
+
+fi
+
+
