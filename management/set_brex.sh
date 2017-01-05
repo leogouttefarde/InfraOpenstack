@@ -25,10 +25,10 @@ while getopts ":hn:" arg; do
 
 List of options:
 -h      => prints the associated help;
--n id   => specifies the ID of the targetted server.
+-n id   => specifies the ID of the targeted server.
 
 Creates the OpenVSwitch interface required by OpenStack on the
-targetted server.
+targeted server.
 
 As a consequence, it is within the range 1 <= ID <= 14 (\"1\" 
 corresponding to \"c31\" and \"14\" to \"c44\").
@@ -56,9 +56,9 @@ corresponding to \"c31\" and \"14\" to \"c44\").
     esac
 done
 
-# Verifying that the ID of the targetted server has been set.
+# Verifying that the ID of the targeted server has been set.
 if [[ "$TARGET" -eq 0 ]]; then
-    echo "The ID of the targetted server must be set."
+    echo "The ID of the targeted server must be set."
     echo "Try \"./set_brex.sh -h\"."
     exit 1
 fi

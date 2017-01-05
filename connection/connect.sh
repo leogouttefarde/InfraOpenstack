@@ -15,12 +15,12 @@ while getopts ":hn:c:s:" arg; do
 
 List of options:
 -h      => prints the associated help;
--n id   => specifies the ID of the targetted server;
+-n id   => specifies the ID of the targeted server;
 -c cmd  => specifies a command to execute on the server;
 -s file => turns the connection into a SCP sending of \"file\".
 (-s and -c are mutually exclusive)
 
-Connects to one of the Helion servers. The ID of the targetted server
+Connects to one of the Helion servers. The ID of the targeted server
 corresponds to its place in the list of servers contained in the
 OpenVPN connection tutorial supplied by HP for the first lab.
 
@@ -75,11 +75,11 @@ BASE_ADDR=10.11.51.
 BASE_ID=160
 SSH_KEY=infra
 
-# Computing the IP address of the targetted server.
+# Computing the IP address of the targeted server.
 let "ip_id = BASE_ID + TARGET"
 ip_addr="${BASE_ADDR}${ip_id}"
 
-# Connecting to the targetted server, either in interactive mode 
+# Connecting to the targeted server, either in interactive mode 
 # or to execute a command.
 # Also taking into account the possibility to send a file via SCP.
 if [[ -z "$COMMAND" ]]; then

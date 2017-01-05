@@ -55,9 +55,9 @@ while getopts ":hln:p:" arg; do
 List of options:
 -h        => prints the associated help;
 -l        => lists all the provisioning option;
--n id     => specifies the ID of the targetted server;
+-n id     => specifies the ID of the targeted server;
 -p script => specifies a provision script to execute on the 
-          targetted server.
+          targeted server.
 
 Provisions the designated host with specified provisioning script.
 
@@ -105,7 +105,7 @@ done
 
 # Checking that the target and the script have been specified.
 if [[ -z "$PROVISION" || -z "$TARGET" ]]; then
-    echo "Both the ID of the targetted server and the provisioning \
+    echo "Both the ID of the targeted server and the provisioning \
 script should be specified.
 Try \"./provision.sh -h\"."
     exit 1
@@ -121,7 +121,7 @@ script to remote host ...\n"
 cd "$CONNECTION_DIR"
 ./connect.sh -n "$TARGET" -s "$PROVISION_PATH"
 
-# Executing the provisioning script on the targetted server, then
+# Executing the provisioning script on the targeted server, then
 # removing it.
 echo -e "\n[Provisioning - ${PROVISION}] Executing provisioning \
 script on remote host ...\n"
