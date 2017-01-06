@@ -22,4 +22,5 @@ systemctl start network
 yum install -y centos-release-openstack-mitaka
 yum update -y
 yum install -y openstack-packstack
-packstack --allinone
+packstack --allinone --provision-demo=n --os-neutron-ovs-bridge-mappings=extnet:br-ex \
+    --os-neutron-ml2-type-drivers=vlan,vxlan,flat --os-heat-install=y
