@@ -1,0 +1,18 @@
+Neutron
+
+# do not comment .... Blank the external_network_bridge !
+/etc/neutron/l3_agent.ini:external_network_bridge = 
+
+/etc/neutron/plugins/ml2/ml2_conf.ini:network_vlan_ranges = physnet1
+/etc/neutron/plugins/ml2/openvswitch_agent.ini:bridge_mappings = physnet1:br-ex
+
+
+Packstack answer:
+
+CONFIG_NEUTRON_L3_EXT_BRIDGE=
+
+CONFIG_NEUTRON_OVS_BRIDGE_IFACES=
+CONFIG_NEUTRON_OVS_BRIDGES_COMPUTE=
+CONFIG_NEUTRON_OVS_BRIDGE_MAPPINGS=physnet1:br-ex
+CONFIG_NEUTRON_ML2_VLAN_RANGES=phynet1
+CONFIG_NEUTRON_ML2_TYPE_DRIVERS=vxlan,vlan
