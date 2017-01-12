@@ -106,4 +106,8 @@ TYPE=OVSPort
 DEVICETYPE=ovs
 OVS_BRIDGE=br-ex
 ONBOOT=yes\" > ${ENO_1_CONFIG} && \
+systemctl disable firewalld && \
+systemctl stop firewalld && \
+systemctl disable NetworkManager && \
+systemctl stop NetworkManager && \
 systemctl restart network"
