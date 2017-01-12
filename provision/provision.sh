@@ -1,4 +1,4 @@
-# /bin/bash
+#! /bin/bash
 
 # This script fails if any command does.
 set -eo pipefail
@@ -46,18 +46,23 @@ function check_provision
 # Handling the arguments.
 TARGET=0
 PROVISION=""
-while getopts ":hln:p:" arg; do
+ARGUMENTS=""
+USE_SCREEN=0
+while getopts ":ha:ln:p:S" arg; do
     case "$arg" in
         h)
             echo "
 ./provision.sh
 
 List of options:
+-a arg    => specifies the arguments to supply to the provisioning script (one string, space separators);
 -h        => prints the associated help;
 -l        => lists all the provisioning option;
 -n id     => specifies the ID of the targeted server;
 -p script => specifies a provision script to execute on the 
-          targeted server.
+             targeted server;
+-S        => specifies that the provisioning should be done in a screen
+             sessions.
 
 Provisions the designated host with specified provisioning script.
 
@@ -65,6 +70,9 @@ A small note on the ID range: it is within 1 <= ID <= 14 (\"1\"
 corresponding to \"c31\" and \"14\" to \"c44\").
 "
             exit 0
+            ;;
+        a)
+            ARGUMENTS="$OPTARG"
             ;;
         l)
             echo -e "\nListing all provisioning scripts:"
@@ -90,14 +98,18 @@ corresponding to \"c31\" and \"14\" to \"c44\").
                 exit 1
             fi
             ;;
+        S)
+            ARGUMENTS="${ARGUMENTS} -S"
+            USE_SCREEN=1
+            ;;
         :)
             echo "The option \"${arg}\" needs an argument."
-            echo "Try ./connect.sh -h."
+            echo "Try ./provision.sh -h."
             exit 1
             ;;
         \?)
             echo "Unknown option: \"${OPTARG}\"."
-            echo "Try ./connect.sh -h."
+            echo "Try ./provision.sh -h."
             exit 1
             ;;
     esac
@@ -125,7 +137,15 @@ cd "$CONNECTION_DIR"
 # removing it.
 echo -e "\n[Provisioning - ${PROVISION}] Executing provisioning \
 script on remote host ...\n"
-./connect.sh -n "$TARGET" -c "./${SCRIPT} && rm -f ${SCRIPT}"
+./connect.sh -n "$TARGET" -c "./${SCRIPT} ${ARGUMENTS}"
 
-# Notifying the user that the provisioning has been completed.
-echo -e "\n[Provisioning - ${PROVISION}] Provisioning complete."
+if [[ "$USE_SCREEN" -eq 1 ]]; then
+    # Notifying the user that the provisioning is being run in a screen.
+    echo -e "\n[Provisioning - ${PROVISION}] The provisioning is being \
+run in a screen session."
+    echo -e "To monitor it, connect to the machine and run \"screen \
+r provision\".\n"
+else
+    # Notifying the user that the provisioning has been completed.
+    echo -e "\n[Provisioning - ${PROVISION}] Provisioning complete."
+fi
