@@ -12,7 +12,7 @@ List of options:
 -h => prints the associated help;
 -S => activate the in-a-screen-session provisioning option.
 
-Provisions the designated host with OpenVSwitch.
+Provisions the designated host with PackStack All-In-One (PAIO).
 "
             exit 0
             ;;
