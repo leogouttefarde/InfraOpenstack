@@ -1,5 +1,40 @@
 #! /bin/bash
 
+# Handling the arguments of the script.
+USE_SCREEN=0
+while getopts ":hS" arg; do
+    case "$arg" in
+        h)
+            echo "
+./ovs.sh
+
+List of options:
+-h => prints the associated help;
+-S => activate the in-a-screen-session provisioning option.
+
+Provisions the designated host with OpenVSwitch.
+"
+            exit 0
+            ;;
+        S)
+            USE_SCREEN=1
+            ;;
+        \?)
+            echo "Unknown option: \"${OPTARG}\"."
+            echo "Try ./ovs.sh -h."
+            exit 1
+            ;;
+    esac
+done
+
+# Executing this script in a screen session, in order to prevent
+# a network crash from crashing the update/install process.
+if [[ $USE_SCREEN -eq 1 ]]; then
+    if [ -z "$STY" ]; then 
+        exec screen -dm -S provision /bin/bash "$0"; 
+    fi
+fi
+
 # Updating software and installing dependencies.
 echo -e "\n### Installation of OpenVSwitch ###\n"
 echo -e "Updating software and installing required dependencies ...\n"
