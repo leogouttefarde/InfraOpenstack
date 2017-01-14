@@ -70,6 +70,10 @@ SSH_KEY=infra.pub
 SSH_PRIVATE_KEY=infra
 CUSTOM_BASH_PROFILE=custom_bash_profile
 
+
+#Add infra to the ssh agent
+ssh-add infra
+
 # Adjusting the value of TARGET, if needed.
 if [[ ! -z "$TARGET" ]]; then
     let "TARGET = TARGET + FIRST_ID - 1"
