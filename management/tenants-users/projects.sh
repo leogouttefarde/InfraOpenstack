@@ -1,5 +1,7 @@
 #! /bin/bash
 
+DIR=$(cd "$(dirname "$0")" && pwd)
+
 #
 #	Creates a user ($2) associated to the project ($1) with
 #	roles : SwiftOperator, heat_stack_owner
@@ -26,5 +28,5 @@ do
  	openstack project create "$project"
 	create_user "$project" "$user1" "$pwd1"
 	create_user "$project" "$user2" "$pwd2"	
-done < "users.csv"
+done < "$DIR"/users.csv
 IFS=$OLDIFS
