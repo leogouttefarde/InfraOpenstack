@@ -1,0 +1,1 @@
+Install a NFS server (exports /storage into /etc/exports).
