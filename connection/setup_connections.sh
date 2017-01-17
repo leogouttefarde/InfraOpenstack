@@ -6,7 +6,7 @@ set -eo pipefail
 # Handling the arguments.
 TARGET=""
 MASTER=""
-while getopts ":hm:n:" arg; do
+while getopts ":hm:n:p:" arg; do
     case "$arg" in
         h)
             echo "
@@ -16,6 +16,7 @@ List of options:
 -h    => prints the associated help.
 -n id => only set up connection to the server which ID is \"id\".
 -m id => copy the infra key and add it to the server which ID is \"id\" 
+-p passwd => specify the root password for the host 
 
 Connects to all of the Helion server in order to setup a passwordless
 SSH connection. In order:
@@ -44,6 +45,9 @@ SSH connection. In order:
             fi
             MASTER="$OPTARG"
             ;;
+        p)
+            root_pass="$OPTARG"
+            ;; 
         :)
             echo "The option \"${arg}\" needs an argument."
             echo "Try ./setup_connections.sh -h."
@@ -61,19 +65,26 @@ done
 FIRST_ID=161
 LAST_ID=174
 BASE_ADDR=10.11.51.
-SSH_OPTIONS="-o StrictHostKeyChecking=no"
+SSH_OPTIONS="-oStrictHostKeyChecking=no"
 SSH_KEY=infra.pub
 SSH_PRIVATE_KEY=infra
 CUSTOM_BASH_PROFILE=custom_bash_profile
+
+
+#Add infra to the ssh agent
+ssh-add infra
 
 # Adjusting the value of TARGET, if needed.
 if [[ ! -z "$TARGET" ]]; then
     let "TARGET = TARGET + FIRST_ID - 1"
 fi
 
-# Asks, in a relatively secured way, for the SSH password.
-read -s -p "Remote host root password:" root_pass
-echo -e "\n"
+# Asks, in a relatively secured way, for the SSH password if needed.
+
+if [[ -z "$root_pass" ]]; then
+    read -s -p "Remote host root password:" root_pass
+    echo -e "\n"
+fi
 
 # Iterating over all the servers in order to setup passwordless SSH
 # connections.
