@@ -1,0 +1,45 @@
+heat_template_version: 2015-04-30
+
+description: Bastion VM deployment
+
+resources:
+
+  # FLOATING IP ADDRESS
+  bastion_floating_ip:
+    type: OS::Nova::FloatingIP
+    properties:
+      pool: external-network
+
+  #INSTANCE
+  bastion_instance:
+    type: OS::Nova::Server
+    properties:
+      name: "bastion"
+      image: "ubuntu1604"
+      flavor: "m1.small"
+      key_name: "default-rsa-key"
+      security_groups: ["default", "custom_group"]
+      networks:
+       - network: "services_network"
+      user_data_format: SOFTWARE_CONFIG
+      user_data: |
+        #!/bin/bash
+        sudo apt-get update
+        sudo apt-get install -y python
+
+  # FLOATING IP ASSOCIATION
+  bastion_floating_association:
+    type: OS::Nova::FloatingIPAssociation
+    properties:
+      floating_ip: { get_resource: bastion_floating_ip }
+      server_id: { get_resource: bastion_instance }
+
+#OUTPUTS
+outputs:
+  bastion_private_ip:
+    description: "Bastion instance private IP address"
+    value: { get_attr: [bastion_instance, first_address] }
+
+  bastion_floating_ip:
+    description: "Bastion instance floating IP address"
+    value: { get_attr: [bastion_floating_ip, ip] }
