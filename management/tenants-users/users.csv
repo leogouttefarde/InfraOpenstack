@@ -1,3 +1,2 @@
-groupe1;user11;passwd11;user12;passwd12
-groupe2;user21;passwd21;user22;passwd22
-groupe3;user31;passwd31;user32;passwd32
+groupe1;user11;passwd11;user12;passwd12;user11@example.fr;yes
+groupe2;user21;passwd21;user22;passwd22;user21@example.fr;no

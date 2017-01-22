@@ -1,0 +1,10 @@
+Bonjour,
+
+Vous trouverez ci-joint les informations concernant votre compte sur l'infrastructure déployée par le groupe
+"Infra" du projet Openstack.
+
+Ceci est un mail automatique, pour toute question, veuillez utiliser la mailing list !
+
+Have fun,
+
+Votre équipe infra
