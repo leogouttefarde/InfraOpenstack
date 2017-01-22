@@ -1,0 +1,87 @@
+heat_template_version: 2015-10-15
+
+description: Bastion template 
+
+parameters:
+    dns:
+        type: string
+        label: DNS IP for subnet
+
+resources:
+
+    ssh_secgroup:
+        type: OS::Neutron::SecurityGroup
+        properties:
+          rules:
+            - protocol: tcp
+              remote_ip_prefix: 0.0.0.0/0
+              port_range_min: 22
+              port_range_max: 22
+            - protocol: icmp
+
+    bastion_private_net:
+        type: OS::Neutron::Net
+
+    bastion_private_subnet:
+        type: OS::Neutron::Subnet
+        properties:
+            network_id: { get_resource: bastion_private_net }
+            cidr: "10.0.1.0/24"
+            gateway_ip: "10.0.1.254"
+            dns_nameservers: [ {get_param: dns} ]
+            ip_version: 4
+
+    bastion_router:
+        type: OS::Neutron::Router
+        properties:
+              external_gateway_info: { network: external-network }
+
+    bastion_subnet_interface:
+        type: OS::Neutron::RouterInterface
+        properties:
+            router_id: { get_resource: bastion_router }
+            subnet: { get_resource: bastion_private_subnet }
+
+    bastion_floating_ip:
+        type: OS::Nova::FloatingIP
+        properties:
+            pool: external-network
+
+    bastion_instance_port:
+        type: OS::Neutron::Port
+        properties:
+            security_groups:
+                - default
+                - { get_resource: ssh_secgroup }
+            network: { get_resource: bastion_private_net }
+            fixed_ips:
+                - subnet_id: { get_resource: bastion_private_subnet }
+
+    bastion_instance:
+        type: OS::Nova::Server
+        properties:
+            flavor: m1.small
+            image: ubuntu1604
+            networks:
+                - port: { get_resource: bastion_instance_port }
+            key_name: { get_resource: bastion_key }
+
+    bastion_key:
+        type: OS::Nova::KeyPair
+        properties:
+            save_private_key: true
+            name: bastion_key
+
+    association:
+        type: OS::Nova::FloatingIPAssociation
+        properties:
+            floating_ip: { get_resource: bastion_floating_ip }
+            server_id: { get_resource: bastion_instance }
+
+outputs:
+    private_key:
+        description: Bastion's private ssh key
+        value: { get_attr: [ bastion_key, private_key ] }
+    bastion_ip:
+        description: Bastion's floating ip
+        value: { get_attr: [ bastion_floating_ip, ip ] }
